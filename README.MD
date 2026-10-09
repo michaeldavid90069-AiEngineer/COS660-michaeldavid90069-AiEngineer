@@ -54,3 +54,35 @@ Original COS550 baseline design and pseudo-code are archived in Appendix B of Go
 
 Best regards,
  David
+
+ # Audio Synchronizer Engine (COS660 Capstone)
+**Developer:** Michael David  
+**Institution:** Full Sail University (Software Engineering)
+
+## Project Overview & Hypothesis
+The Audio Synchronizer Engine is an automated Python pipeline designed to ingest audio media, detect rhythmic beat transients, and dynamically composite video clips synchronized to those beats. 
+
+**Core Hypothesis:** A supervised Machine Learning pipeline utilizing STFT/MFCC feature extraction and a Support Vector Machine (SVM) classifier can match or exceed the accuracy, precision, and recall thresholds of a traditional 100ms moving-average Heuristic DSP baseline for automated video synchronization.
+
+---
+
+## 🗂️ File Structure & Architecture
+The repository is organized to separate source logic, serialized machine learning models, testing suites, and media assets.
+
+```text
+COS660-michaeldavid90069-AiEngineer/
+│
+├── assets/                  # Directory for reference .mp4, .mp3, and .wav media
+├── models/                  # Serialized machine learning models
+│   └── audio_classifier.pkl # Best-performing SVM-RBF model saved via joblib
+│
+├── src/                     # Core application logic
+│   ├── ml_classifier.py     # ML feature extraction, NMS logic, and inference routing
+│   └── signal_processor.py  # Binary validation and 1D mono waveform ingestion
+│
+├── tests/                   # Automated V&V test suites
+│   ├── test_milestone1.py   # Heuristic baseline validation (±25ms tolerance)
+│   └── test_milestone2.py   # ML pipeline validation (±25ms tolerance)
+│
+├── requirements.txt         # Locked environment dependencies (Librosa, Scikit-Learn, etc.)
+└── README.md                # Project documentation
