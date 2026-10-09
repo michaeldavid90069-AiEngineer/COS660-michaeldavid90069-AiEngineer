@@ -1,7 +1,7 @@
 Markdown
 Hello Dr. Leis, Dr. Kachirski, and Gary Alvarez,
 
-Please find attached my Milestone 2 screencast demonstrations (5-minute deep dive and 90-second highlight reel) and GitHub push screenshot for the Audio Synchronizer Engine.
+Please find attached my Milestone 2 screencast demonstrations (3-minute deep dive and 90-second highlight reel) and GitHub push screenshot for the Audio Synchronizer Engine.
 
 1. Build Version & Iteration to Evaluate:
    - Build Version: v0.2.0-milestone2 (Tasks T7-T10 ML Audio Classifier, Non-Maximum Suppression Logic, Automated pytest V&V Suite, and Telemetry Visualizer)
