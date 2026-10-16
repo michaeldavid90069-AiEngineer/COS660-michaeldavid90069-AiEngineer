@@ -1,9 +1,13 @@
 Markdown
+
 Audio Synchronizer Engine (Build v0.3.0)
 
 Master of Science in Computer Science & AI Graduate Certificate Capstone
+
 Author: Michael David Gonzales (mdgonzales1@student.fullsail.edu)
+
 Institution: Full Sail University — School of Technology & Innovation
+
 Advisor: Dr. Oleg Kachirski | Course Director: Dr. Rebecca Leis
 
 📌 Project Overview
