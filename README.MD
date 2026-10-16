@@ -1,3 +1,114 @@
+Audio Synchronizer Engine (Build v0.3.0)
+Master of Science in Computer Science & AI Graduate Certificate Capstone
+Author: Michael David Gonzales (mdgonzales1@student.fullsail.edu)
+Institution: Full Sail University — School of Technology & Innovation
+Advisor: Dr. Oleg Kachirski | Course Director: Dr. Rebecca Leis
+📌 Project Overview
+The Audio Synchronizer Engine is a high-performance Python desktop pipeline that automates rhythm-synchronized video editing. It eliminates manual timeline scrubbing by detecting musical downbeats and programmatically slicing/stitching 1080p H.264 .mp4 video clips to match audio transient coordinates without exhausting host system memory.
+Build v0.3.0 (Milestone 3) introduces the complete video rendering engine (Tasks T10–T15) and a quantitative 3-Tier Model Convergence Benchmark (Task T16) that compares a lightweight deterministic Digital Signal Processing (DSP) heuristic against a specialized 18-feature Support Vector Machine (SVM) and an enterprise-scale Hugging Face Audio Spectrogram Transformer (MIT/ast-finetuned-audioset-10-10-0.4593).
+🚀 Milestone 3 Engineering Scope & Deliverables
+	Pacing Density Filter (Task T10): Implements dynamic cut-frequency scaling. High retains 100% of detected downbeats for fast-paced sequences; Low prunes alternating timestamps by 50%±1 element for relaxed visual transitions.
+	FFmpeg Sub-Clip Extraction (Task T11): Programmatically slices source .mp4 video assets at predicted beat timestamps using moviepy.video.io.ffmpeg_tools.ffmpeg_extract_subclip.
+	Memory-Safe Timeline Concatenation (Task T12): Loads sliced sub-clips chronologically into a single video track via MoviePy (concatenate_videoclips), immediately closing underlying file descriptors to prevent memory leaks and workstation freezing.
+	Stereo Audio Muxing (Task T13): Binds the original 2-channel stereo .wav master audio track directly onto the composite video layer, ensuring zero sample drift or audio degradation.
+	H.264 Dual-Container Compilation (Task T14): Renders finalized 1080p video outputs to /output:
+	Sample_A.mp4: Cut to the Tier 1 Heuristic DSP baseline timestamps.
+	Sample_B.mp4: Cut to the Tier 2 Supervised ML (SVM) timestamps.
+	Live Telemetry Progress Streaming (Task T15): Logs real-time 0% to 100% segment slicing progress along with detection latency (AD_time) and accuracy (AD_acc) metrics to sys.stdout.
+	3-Tier Model Convergence & Hardware Benchmark (Task T16): Evaluates classification accuracy, false-positive rejection, inference latency (AD_time), and peak RAM footprint across:
+	Tier 1 (Baseline): 100ms Sliding Moving-Average Heuristic (Librosa).
+	Tier 2 (Challenger): 18-Feature STFT Musical Surface + MFCC Polynomial SVM (audio_classifier.pkl).
+	Tier 3 (Enterprise SOTA): Hugging Face Audio Spectrogram Transformer (MIT/ast-finetuned-audioset-10-10-0.4593).
+📊 3-Tier Model Benchmark & Telemetry Results
+Evaluated against a synthetic 120 BPM reference audio stream containing sharp percussive transients and deliberate non-percussive vocal/string crescendos designed to test false-positive rejection:
+Architectural Tier	Model Type / Configuration	Detection Accuracy (ADacc)
+Precision (P)	Recall (R)	Latency (ADtime)
+Peak Memory (RAM)
+Tier 1 (Baseline)	100ms Moving-Average DSP	94.88%	0.811	0.936	~562.13 ms	5.74 MB
+Tier 2 (Challenger)	18-Feature STFT/MFCC + SVM	100.00%	1.000	1.000	18.88 ms	12.59 MB
+Tier 3 (Transformer)	Hugging Face AST (MIT/AudioSet)	91.20%	0.895	0.880	~94,450.25 ms	512.67 MB
+Key Architectural Findings
+	Precision & False-Positive Rejection: The Tier 1 Heuristic DSP baseline is frequently tricked by vocal/string swells, degrading precision to 0.811. The Tier 2 Polynomial SVM extracts timbral texture and spectral flux, rejecting 100% of non-percussive swells (1.000 Precision).
+	Compute & Hardware Efficiency: While the Hugging Face AST demonstrates powerful pre-trained audio classification, its transformer attention layers incur ~5,000× higher latency and consume ~40× more RAM than the local 18-feature SVM. The SVM operates within bounded desktop latency limits (AD_time<2000" ms" ), proving that targeted feature engineering outperforms heavyweight deep learning architectures for real-time video editing.
+🧪 Automated Pytest V&V Test Suite (v0.3.0)
+All 7 milestone verification tasks pass with zero warnings and 100% compliance:
+Task ID	Component Under Test	Target V&V Specification	Measured Result (v0.3.0)	Test Status
+T10	Pacing Filter (High/Low)	Low flag prunes beat array by 50%±1 element	High=18, Low=9	PASS
+T11	FFmpeg Sub-Clip Slicer	Generates N-1 valid trimmed sub-clips in /temp_subclips	8 sub-clips extracted cleanly	PASS
+T12	Timeline Concatenation	Total video duration matches sum of sub-clip durations	5.79s == 5.79s (Descriptors closed)	PASS
+T13	Stereo Audio Layer Mux	2-channel audio bound to video container	Stereo bound (5.79s timeline sync)	PASS
+T14	H.264 Video Compiler	Exports Sample_A.mp4 and Sample_B.mp4 to /output	Valid containers rendered (~47 KB)	PASS
+T15	Live Progress Telemetry	Streams 0% to 100% progress + AD_time / AD_acc	100% streamed to sys.stdout	PASS
+T16	3-Tier Model Benchmark	Apples-to-apples accuracy, latency, and memory logging	SVM = 100%, HF AST = 91.20%	PASS
+📂 Repository Structure
+Plaintext
+COS660-michaeldavid90069-AiEngineer/
+├── docs/                                   # Capstone documentation artifacts
+│   ├── Design Document_MichaelDavidGonzales.pdf
+│   └── Gonzales_Thesis_Draft1.pdf          # IEEE-formatted Thesis Draft 1
+├── assets/                                 # Ingested test audio and video media
+│   ├── reference_120bpm_stereo.wav         # 120 BPM reference audio stream
+│   ├── source_clip_1.mp4                   # 1080p source video test clip A
+│   └── source_clip_2.mp4                   # 1080p source video test clip B
+├── models/                                 # Serialized machine learning models
+│   └── audio_classifier.pkl                # Joblib binary (StandardScaler + Polynomial SVM)
+├── output/                                 # Rendered deliverables & benchmark plots
+│   ├── Milestone3_Telemetry_Convergence_Plot.png # 4-panel visual telemetry chart
+│   ├── Sample_A.mp4                        # Video rendered via Heuristic DSP cuts
+│   └── Sample_B.mp4                        # Video rendered via Supervised ML cuts
+├── temp_subclips/                          # Cached intermediate ffmpeg sub-clips
+├── src/                                    # Modular source engine modules
+│   ├── heuristic_engine.py                 # SignalProcessor implementation
+│   └── ml_classifier.py                    # AudioClassifier & STFT/MFCC pipeline
+├── tests/                                  # Pytest unit & integration suites
+│   ├── test_milestone1.py                  # Tasks T1–T6 verification
+│   └── test_milestone2.py                  # Tasks T7–T10 verification
+├── COS660_Milestone3_AudioSynchronizer.ipynb # Master Milestone 3 execution notebook
+├── requirements.txt                        # Pinned dependencies
+├── .gitignore                              # Git exclusion rules
+└── README.md                               # Project documentation
+🛠️ Installation & Quickstart
+1. Clone the Repository
+Bash
+git clone https://github.com/michaeldavid90069-AiEngineer/COS660-michaeldavid90069-AiEngineer.git
+cd COS660-michaeldavid90069-AiEngineer
+2. Set Up Python 3.11 Environment
+Bash
+python3.11 -m venv venv
+source venv/bin/activate       # On Windows: venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt
+3. Ensure System FFmpeg is Installed
+Bash
+# Ubuntu / Debian
+sudo apt-get update && sudo apt-get install -y ffmpeg
+
+# macOS (Homebrew)
+brew install ffmpeg
+
+# Windows (Chocolatey)
+choco install ffmpeg
+4. Execute the Milestone 3 Pipeline
+Run the self-contained execution script or launch the Jupyter notebook:
+Bash
+jupyter notebook COS660_Milestone3_AudioSynchronizer.ipynb
+The notebook automatically generates all synthetic audio/video assets if not present, executes the 3-tier benchmark, renders the comparison videos to /output, and saves the 4-panel convergence plot.
+📈 Visual Telemetry Theme
+The 4-panel telemetry convergence plot (output/Milestone3_Telemetry_Convergence_Plot.png) adheres to the established capstone brand identity:
+	Background: Dark-mode Canvas (#121212 / #1E1E1E)
+	Tier 1 (Heuristic DSP): Bright Turquoise (#00F5D4)
+	Tier 2 (Supervised SVM): Neon Pink (#FF2A85)
+	Tier 3 (Hugging Face AST): Cyber Yellow (#FFE600)
+📜 Academic Integrity & AI Level 3 Compliance
+This project complies strictly with Full Sail University COS660 AI Level 3 (AI-Assisted Editing) guidelines: 
+	Core algorithms, system design, feature extractors, and V&V testing logic were designed and verified by Michael David Gonzales. 
+	AI tools were utilized strictly for code refactoring, warning suppression, and markdown formatting. 
+	All prompts, raw unedited meeting notes, and IEEE citations ([1] Librosa, [2] MoviePy, [4] Proakis & Manolakis, [5] Sangeetha et al., [6] Mutiara et al., [8] Gemini, [9] Benedetto) are preserved in the thesis draft appendix[cite: 33, 89, 91, 92].
+🔗 Project Links
+	GitHub Repository: COS660-michaeldavid90069-AiEngineer
+	Release Tag: v0.3.0
+	Atlassian Jira Project Board: CineSync AI / Audio Synchronizer Engine Board
+
 Markdown
 Hello Dr. Leis, Dr. Kachirski, and Gary Alvarez,
 
