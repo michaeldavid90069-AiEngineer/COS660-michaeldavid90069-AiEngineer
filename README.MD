@@ -1,3 +1,49 @@
+MarkDown
+
+Pushing the Engine to its Breaking Point: 4K Stress Testing and OOM Crashes 💥
+Author: Michael David Gonzales
+
+Date: October 21, 2026
+
+🎯 The Goal: Finding the Ceiling
+In my professional background running environmental stress tests on chips at Qualcomm, the goal was always to push hardware until it failed so we could find its true limits 🔍. This month, I decided to bring that exact same energy to my software pipeline for the Audio Synchronizer Engine ⚙️.
+
+Last week (Milestone 3), I implemented a file-descriptor fix that allowed my engine to smoothly slice and render 1080p video 🎬. But I needed to know if the architecture could actually scale. My goal for Milestone 4 was to push the VideoSynchronizerCompiler to its absolute breaking point by feeding it massive, synthetically generated 4K (3840x2160) media assets and seeing where the memory bottleneck was hiding 🧱.
+
+🛠️ Feature Development & The Troubleshooting Grind
+To make this happen, I built a standalone 4K synthetic media generator using Python 🐍. Instead of using real video, the script generates a 3-minute 120 BPM reference audio track and two heavy 4K solid-color video containers 🎵.
+
+The main tools for this phase were Google Colab (hosting the virtual machine) ☁️, FFmpeg/moviepy (for the heavy video slicing) ✂️, and tracemalloc (to track the exact peak RAM usage during the run) 📊.
+
+The biggest challenge this month wasn't actually the video generation, but the data structures 🧩. Because I was bypassing my main Machine Learning benchmark suite to run this raw stress test, the compiler crashed early on with a KeyError ❌. It was looking for specific telemetry keys (AD_time and AD_acc) to print out its progress logs 📝. I had to engineer a dummy telemetry dictionary to trick the logging system so the FFmpeg slicing loop could initialize 🎛️.
+
+🔗 Medium Article: Building the 4K asset generator and patching the telemetry dictionary to bypass the ML benchmark 📑
+
+⚖️ What Went Right and What Broke?
+✅ What went right?
+I successfully built a modular testing environment, bypassed the unnecessary ML generation steps, and forced the engine into a rapid-fire slicing loop 🚀. In QA testing, finding the exact point of failure is a massive win because it gives you hard data to work with 📈.
+
+❌ What went wrong?
+The pipeline completely choked on the 4K footage 🛑. While 1080p runs fine, the 4K stress test induced a fatal Out of Memory (OOM) crash in the Colab VM 💻💥. The execution managed to slice and render 358 individual 4K segments before the RAM was entirely exhausted 📉. It looks like the moviepy library is hoarding raw frame data or holding file pointers hostage in the background of that massive for loop 🔄.
+
+🎥 YouTube Video: Watch the Colab VM suffer a fatal OOM crash right after processing segment 358 ▶️
+
+🔧 How can I improve moving forward?
+This crash officially documents my project's current technical debt ⚠️. Moving forward into Milestone 5, my entire focus will be on refactoring this rendering loop 🛠️. I need to aggressively force garbage collection 🗑️ and ensure background file descriptors are cleanly closed after every single sub-clip extraction 🚪.
+
+🔗 Medium Article: The exact moment the virtual machine gave up 📸
+
+🎓 Course Reflections & Next Steps
+⏱️ Time Utilization & Course Connections:
+I used my time really effectively this month by pivoting away from building new features and focusing strictly on Quality Assurance (QA) 🔍. This whole exercise tied directly back to the software testing methodologies we covered earlier in the CSMS program 📚. Treating this code with the same rigorous stress-testing principles I used in hardware engineering allowed me to scientifically isolate a very specific memory leak 🔬.
+
+👨‍🏫 Advisor Interaction:
+I've already documented these findings and sent them over to my advisor, Dr. Oleg Kachirski, in my Weekly Check-In 📬. I explicitly outlined the OOM crash and made it clear that Milestone 5 will be a "technical debt resolution" phase 📋. Keeping leadership in the loop when things break is just as important as showing them when things work 🤝.
+
+🏁 Am I ready to move on to the next phase?
+Absolutely 👍. Now that I know exactly where and why the engine breaks, I know exactly what I need to code next week to make it bulletproof 🛡️.
+
+
 Markdown
 
 Audio Synchronizer Engine (Build v0.3.0)
