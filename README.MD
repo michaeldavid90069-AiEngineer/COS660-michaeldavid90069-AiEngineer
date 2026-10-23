@@ -1,5 +1,53 @@
 MarkDown
 
+Audio Synchronizer Engine (COS660 Capstone)
+
+Author: Michael David Gonzales (mdgonzales1@student.fullsail.edu)
+
+Program: Computer Science Master of Science (CSMS) / AI Graduate Certificate
+
+Course: COS660 Capstone, Full Sail University
+
+Advisor: Dr. Oleg Kachirski | Course Director: Dr. Rebecca Leis
+
+🚀 Latest Updates: Week 4 - Performance Refactoring & Memory Optimization
+
+The primary focus of Week 4 was rigorous performance load testing, telemetry analysis, and resolving critical technical debt accumulated during early stress testing (specifically targeting catastrophic Out-of-Memory (OOM) crashes encountered during 4K video processing).
+
+Key Achievements:
+
+Critical Bug Fix (Memory Leak): Identified a severe memory hoarding issue caused by the moviepy library's underlying ffmpeg_extract_subclip wrapper. The abstraction layer was failing to release OS-level file locks and RAM buffers during high-loop iterative rendering, causing Google Colab (12.7 GB RAM limit) to crash entirely.
+
+Native FFmpeg Integration: Refactored the VideoSynchronizerCompiler pipeline to bypass Python-level video abstraction entirely. The engine now uses Python's subprocess module to execute raw, native FFmpeg stream-copying commands.
+
+Telemetry & Hardware Benchmarking:
+
+Previous State: 4K rendering crashed the VM (> 12.7 GB Peak RAM).
+
+Current State: Successfully processed a 3-minute, 120-BPM 4K stress test (358 segmented cuts) with a total execution time of 341.87 seconds.
+
+Peak RAM Usage: Slashed to an incredibly stable 0.12 MB.
+
+Agile Board Sync: Jira (MAAN Board) updated to reflect the successful migration of Task T18 (End-to-End Performance Load Testing), Task T21 (Codebase Refactoring & Final Optimization), and Task T22 (Milestone 4 Portfolio Post & Defense Prep) to the "In Review" stage.
+
+🧠 System Architecture: 3-Tier Model
+
+The core of the Audio Synchronizer Engine evaluates audio features to pinpoint percussive and non-percussive transients. It runs telemetry across three distinct detection models:
+
+Tier 1: Heuristic DSP (Baseline)
+
+Utilizes librosa onset strength and moving average thresholds for low-latency, heuristic beat detection.
+
+Tier 2: Supervised SVM (18-Feature Extraction)
+
+Extracts a robust matrix of STFT and MFCC features (Spectral Centroid, Rolloff, ZCR, RMS, MFCCs) fed into a Support Vector Machine classifier.
+
+Tier 3: Hugging Face Pre-Trained AST
+
+Implements the Audio Spectrogram Transformer (MIT/ast-finetuned-audioset) for deep-learning-based acoustic event detection.
+
+MarkDown
+
 Pushing the Engine to its Breaking Point: 4K Stress Testing and OOM Crashes 💥
 Author: Michael David Gonzales
 
